@@ -1,0 +1,7 @@
+{
+  "name": "branca-team",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
