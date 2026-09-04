@@ -22,7 +22,6 @@ const Registro: React.FC = () => {
     setErrorMessage(msg);
   };
 
-  // Tomar foto del cliente
   const takePhoto = async () => {
     try {
       const image = await Camera.getPhoto({
@@ -40,7 +39,6 @@ const Registro: React.FC = () => {
     }
   };
 
-  // Enviar formulario de registro
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -58,7 +56,6 @@ const Registro: React.FC = () => {
     setIsSuccess(false);
 
     try {
-      // 1. Verificar si el correo ya existe
       const { data: usuarioExistente } = await supabase
         .from('usuarios')
         .select('id')
@@ -71,7 +68,6 @@ const Registro: React.FC = () => {
         return;
       }
 
-      // 2. Registrar usuario en estado PENDIENTE
       const { error: insertError } = await supabase
         .from('usuarios')
         .insert([
@@ -83,7 +79,7 @@ const Registro: React.FC = () => {
             clave: clave,
             foto_url: foto,
             perfil: 'cliente_registrado',
-            estado: 'pendiente' // Requiere aprobación del supervisor / dueño
+            estado: 'pendiente'
           }
         ]);
 

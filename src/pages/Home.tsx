@@ -10,12 +10,9 @@ const Home: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [loadingLogin, setLoadingLogin] = useState<boolean>(false);
-
   const [nombreAnon, setNombreAnon] = useState<string>('');
   const [fotoAnon, setFotoAnon] = useState<string | null>(null);
   const [loadingAnon, setLoadingAnon] = useState<boolean>(false);
-  
-  // Estado para la animación del tilde verde de éxito
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -23,7 +20,6 @@ const Home: React.FC = () => {
     setErrorMessage(msg);
   };
 
-  // Iniciar sesión con cuenta registrada
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -64,15 +60,12 @@ const Home: React.FC = () => {
         }
       }
 
-      // Guardar datos en el localStorage
       localStorage.setItem('user_id', usuario.id);
       localStorage.setItem('user_perfil', usuario.perfil);
       localStorage.setItem('user_nombre', `${usuario.nombre} ${usuario.apellido || ''}`.trim());
 
-      // Cambiar a estado de éxito con tilde verde
       setIsSuccess(true);
 
-      // Esperar 1.5 segundos mostrando el tilde verde antes de redirigir
       setTimeout(() => {
         setLoadingLogin(false);
         setIsSuccess(false);
@@ -104,7 +97,6 @@ const Home: React.FC = () => {
     }
   };
 
-  // Sacar foto para invitado
   const takePhoto = async () => {
     try {
       const image = await Camera.getPhoto({
@@ -122,7 +114,6 @@ const Home: React.FC = () => {
     }
   };
 
-  // Iniciar como anónimo
   const handleAnonSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -140,7 +131,6 @@ const Home: React.FC = () => {
     setIsSuccess(false);
 
     try {
-      // Guardar directamente en la tabla 'clientes_anonimos'
       const { data: clienteAnon, error: dbError } = await supabase
         .from('clientes_anonimos')
         .insert([
@@ -154,15 +144,12 @@ const Home: React.FC = () => {
 
       if (dbError) throw dbError;
 
-      // Guardar datos en el localStorage
       localStorage.setItem('user_id', clienteAnon.id);
       localStorage.setItem('user_perfil', 'cliente_anonimo');
       localStorage.setItem('user_nombre', clienteAnon.nombre);
 
-      // Cambiar a estado de éxito con tilde verde
-      setIsSuccess(true);
 
-      // Esperar 1.5 segundos mostrando el tilde verde antes de redirigir
+      setIsSuccess(true);
       setTimeout(() => {
         setLoadingAnon(false);
         setIsSuccess(false);
