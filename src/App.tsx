@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Login } from './pages/login';
 import { AdminPanel } from './pages/adminpanel';
+import Registro from './pages/registro';
 import Home from './pages/Home';
 
 /* Core CSS required for Ionic components to work properly */
@@ -34,6 +35,7 @@ const App: React.FC = () => (
       <IonRouterOutlet>
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/registro" element={<Registro/>}/>
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/" element={<Navigate to="/home" replace />} />
       </IonRouterOutlet>
