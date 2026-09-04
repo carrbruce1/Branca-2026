@@ -32,12 +32,9 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        {/* Sintaxis de React Router v6 */}
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/admin" element={<AdminPanel />} />
-
-        {/* Redirección inicial hacia /login */}
         <Route path="/" element={<Navigate to="/home" replace />} />
       </IonRouterOutlet>
     </IonReactRouter>
