@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+:root {
+  --retro-bg-dark: #1b1012;
+  --retro-card-bg: #4a1525;
+  --retro-card-border: #140508;
+  --retro-yellow: #f1b333;
+  --retro-green: #2d5a3f;
+  --retro-cream: #f4ebd0;
+  --retro-text-dark: #231109;
+}
+
+.home-content {
+  --background: var(--retro-bg-dark);
+  color: var(--retro-cream);
+  font-family: 'VT323', monospace, sans-serif;
+}
+
+.home-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 10px;
+}
+
+.retro-header {
+  margin-bottom: 15px;
+}
+
+.logo-container {
+  background-color: var(--retro-card-bg);
+  border: 4px solid var(--retro-card-border);
+  border-radius: 50%;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 6px 0px var(--retro-card-border);
+}
+
+.retro-logo {
+  max-width: 80px;
+  max-height: 80px;
+  object-fit: contain;
+}
+
+.section-hero {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.hero-title {
+  color: var(--retro-yellow);
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0px var(--retro-card-border);
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+/* 3D Flip Mechanics */
+.card-flipper-container {
+  width: 100%;
+  perspective: 1000px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  background-color: var(--retro-card-bg);
+  border: 4px solid var(--retro-card-border);
+  border-radius: 18px;
+  padding: 24px 20px;
+  width: 100%;
+  box-shadow: 0px 8px 0px rgba(0, 0, 0, 0.6);
+  backface-visibility: hidden;
+  box-sizing: border-box;
+}
+
+.card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(180deg);
+}
+
+.form-title {
+  color: var(--retro-cream);
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  border-bottom: 3px dashed var(--retro-yellow);
+  padding-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.retro-label {
+  color: var(--retro-yellow);
+  font-size: 1.2rem;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.retro-input {
+  --background: #2b0b14;
+  --color: var(--retro-cream);
+  --placeholder-color: #8c5b68;
+  border: 3px solid var(--retro-card-border);
+  border-radius: 8px;
+  padding-left: 10px !important;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+}
+
+.retro-btn {
+  width: 100%;
+  padding: 12px;
+  border: 3px solid var(--retro-card-border);
+  border-radius: 12px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.1s ease;
+  box-shadow: 0px 5px 0px var(--retro-card-border);
+}
+
+.btn-yellow {
+  background-color: var(--retro-yellow);
+  color: var(--retro-text-dark);
+}
+
+.btn-green {
+  background-color: var(--retro-green);
+  color: var(--retro-cream);
+}
+
+.retro-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0px 1px 0px var(--retro-card-border);
+}
+
+.btn-flip-trigger {
+  background: none;
+  border: none;
+  color: var(--retro-yellow);
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  margin-top: 15px;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-flip-trigger:hover {
+  color: var(--retro-cream);
+}
+
+.registro-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.retro-link {
+  color: var(--retro-yellow);
+  font-size: 1.2rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.retro-link:hover {
+  color: var(--retro-cream);
+}
+
+.card-inner:not(.is-flipped) .card-back {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.card-inner.is-flipped .card-front {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+@media (max-width: 480px), (max-height: 750px) {
+
+  .home-content {
+    --padding-top: 0px;
+    --padding-bottom: 0px;
+  }
+
+  .home-container {
+    height: 100dvh;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    box-sizing: border-box;
+  }
+
+  .retro-header {
+    margin-bottom: 5px;
+  }
+
+  .logo-container {
+    width: 70px;
+    height: 70px;
+  }
+
+  .retro-logo {
+    max-width: 50px;
+    max-height: 50px;
+  }
+
+  .section-hero {
+    margin-bottom: 8px;
+  }
+
+  .hero-title {
+    font-size: 0.95rem;
+    line-height: 1.1;
+  }
+
+  .card-face {
+    padding: 12px 14px;
+    border-width: 3px;
+    border-radius: 12px;
+  }
+
+  .form-title {
+    font-size: 0.7rem;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+  }
+
+  .form-group {
+    margin-bottom: 8px;
+  }
+
+  .retro-label {
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+  }
+
+  .retro-input {
+    font-size: 0.95rem;
+    padding: 6px 8px;
+    height: 36px;
+  }
+
+  .retro-btn {
+    padding: 8px;
+    font-size: 0.65rem;
+    margin-top: 6px;
+    height: 38px;
+    box-shadow: 0px 3px 0px var(--retro-card-border);
+  }
+
+  .btn-flip-trigger {
+    font-size: 0.95rem;
+    margin-top: 8px;
+  }
+
+  .registro-container {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .retro-link {
+    font-size: 0.95rem;
+  }
+}

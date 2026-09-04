@@ -38,7 +38,7 @@ const App: React.FC = () => (
         <Route path="/admin" element={<AdminPanel />} />
 
         {/* Redirección inicial hacia /login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
       </IonRouterOutlet>
     </IonReactRouter>
   </IonApp>
