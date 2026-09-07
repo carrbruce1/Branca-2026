@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { IonContent, IonPage, IonInput, useIonRouter } from '@ionic/react';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import './Home.css';
-import { supabase } from '../services/supabaseCliente';
+import { supabase } from "../services/Supabasecliente";
 
 const Home: React.FC = () => {
   const router = useIonRouter();

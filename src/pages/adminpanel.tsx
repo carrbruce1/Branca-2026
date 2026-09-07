@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonContent, IonSpinner, useIonRouter } from '@ionic/react';
-import { supabase } from '../services/supabaseCliente';
+import { IonPage, IonContent, IonSpinner, IonToast, useIonRouter } from '@ionic/react';
+import { supabase } from "../services/Supabasecliente";
 
 interface Usuario {
   id: string;
-  nombres: string;
-  apellidos: string;
-  dni: string;
+  nombre: string;
+  dni: number;
   perfil: string;
   estado: string;
   foto_url: string | null;
@@ -14,13 +13,20 @@ interface Usuario {
 
 export const AdminPanel: React.FC = () => {
   const router = useIonRouter();
-
   const [cargandoSesion, setCargandoSesion] = useState(true);
   const [usuario, setUsuario] = useState<Usuario | null>(null);
-
   const [pendientes, setPendientes] = useState<Usuario[]>([]);
   const [cargandoPendientes, setCargandoPendientes] = useState(true);
   const [procesando, setProcesando] = useState<string | null>(null);
+  const [toastInfo, setToastInfo] = useState<{
+    mostrar: boolean;
+    mensaje: string;
+    color: 'success' | 'danger' | 'warning';
+  }>({
+    mostrar: false,
+    mensaje: '',
+    color: 'success'
+  });
 
   useEffect(() => {
     const cargarUsuario = async () => {
@@ -34,17 +40,18 @@ export const AdminPanel: React.FC = () => {
 
       const { data, error } = await supabase
         .from('usuarios')
-        .select('id, nombres, apellidos, dni, perfil, estado, foto_url')
-        .eq('id', userId)
-        .single();
+        .select('id, nombre, dni, perfil, estado, foto_url')
+        .eq('id', userId);
 
-      if (error || !data) {
+      const perfilAdmin = data?.[0];
+
+      if (error || !perfilAdmin) {
         console.error('No se pudo cargar el perfil del admin ->', error);
         router.push('/login', 'forward', 'replace');
         return;
       }
 
-      setUsuario(data as Usuario);
+      setUsuario(perfilAdmin as Usuario);
       setCargandoSesion(false);
     };
 
@@ -53,11 +60,11 @@ export const AdminPanel: React.FC = () => {
 
   const traerPendientes = async () => {
     setCargandoPendientes(true);
+
     const { data, error } = await supabase
       .from('usuarios')
-      .select('id, nombres, apellidos, dni, perfil, estado, foto_url')
-      .eq('perfil', 'cliente_registrado')
-      .eq('estado', 'pendiente_aprobacion')
+      .select('id, nombre, dni, perfil, estado, foto_url')
+      .eq('estado', 'pendiente')
       .order('fecha_registro', { ascending: true });
 
     if (!error && data) setPendientes(data as Usuario[]);
@@ -69,21 +76,37 @@ export const AdminPanel: React.FC = () => {
   }, [cargandoSesion]);
 
   const resolver = async (cliente: Usuario, aprobar: boolean) => {
-    setProcesando(cliente.id);
+  setProcesando(cliente.id);
 
-    await supabase
-      .from('usuarios')
-      .update({
-        estado: aprobar ? 'aprobado' : 'rechazado',
-        fecha_aprobacion: new Date().toISOString(),
-        aprobado_por: usuario?.id ?? null,
-      })
-      .eq('id', cliente.id);
+  const estadoNuevo = aprobar ? 'aceptado' : 'rechazado';
 
-    setProcesando(null);
+  const { error } = await supabase
+    .from('usuarios')
+    .update({
+      estado: estadoNuevo,
+      fecha_aprobacion: new Date().toISOString(),
+      aprobado_por: usuario?.id ?? null,
+    })
+    .eq('id', cliente.id);
+
+  setProcesando(null);
+
+  if (error) {
+    console.error('Error al actualizar usuario:', error);
+    setToastInfo({
+      mostrar: true,
+      mensaje: `Ocurrió un error al intentar ${aprobar ? 'aceptar' : 'rechazar'} a ${cliente.nombre}.`,
+      color: 'danger'
+    });
+  } else {
+    setToastInfo({
+      mostrar: true,
+      mensaje: `El cliente ${cliente.nombre} fue ${aprobar ? 'aceptado' : 'rechazado'} correctamente.`,
+      color: aprobar ? 'success' : 'warning'
+    });
     traerPendientes();
-  };
-
+  }
+};
   const handleCerrarSesion = async () => {
     await supabase.auth.signOut();
     router.push('/login', 'forward', 'replace');
@@ -120,7 +143,7 @@ export const AdminPanel: React.FC = () => {
                 Panel
               </span>
               <h1 style={{ fontSize: '18px', fontWeight: '500', color: '#18181b', margin: '2px 0 0 0' }}>
-                Hola, {usuario?.nombres}
+                Hola, {usuario?.nombre}
               </h1>
             </div>
             <button
@@ -140,7 +163,6 @@ export const AdminPanel: React.FC = () => {
             </button>
           </header>
 
-          {/* CONTENIDO */}
           <main style={{ padding: '20px 16px', maxWidth: '520px', margin: '0 auto' }}>
             <div style={{
               backgroundColor: '#ffffff',
@@ -190,13 +212,13 @@ export const AdminPanel: React.FC = () => {
                         {cliente.foto_url ? (
                           <img src={cliente.foto_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
                         ) : (
-                          cliente.nombres.charAt(0)
+                          cliente.nombre?.charAt(0) ?? 'U'
                         )}
                       </div>
 
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: '13px', color: '#18181b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {cliente.nombres} {cliente.apellidos}
+                          {cliente.nombre}
                         </p>
                         <p style={{ fontSize: '11px', color: '#a1a1aa', margin: 0 }}>
                           DNI {cliente.dni}
@@ -245,9 +267,17 @@ export const AdminPanel: React.FC = () => {
               )}
             </div>
           </main>
+
+          <IonToast
+            isOpen={toastInfo.mostrar}
+            message={toastInfo.mensaje}
+            duration={3000}
+            color={toastInfo.color}
+            onDidDismiss={() => setToastInfo((prev) => ({ ...prev, mostrar: false }))}
+          />
+
         </div>
       </IonContent>
     </IonPage>
   );
 };
-

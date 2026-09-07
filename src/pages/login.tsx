@@ -6,7 +6,7 @@ import {
   IonModal,
   useIonRouter
 } from '@ionic/react';
-import { supabase } from '../services/supabaseCliente';
+import { supabase  } from "../services/Supabasecliente";
 
 export const Login: React.FC = () => {
   const router = useIonRouter();
@@ -46,10 +46,7 @@ export const Login: React.FC = () => {
     setErrorLogin(null);
 
     try {
-      // 1. Login contra Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-      console.log('auth signIn ->', { data, error }); // TEMPORAL: sacar cuando funcione
 
       if (error || !data.user) {
         setErrorLogin(error?.message ?? 'Email o contraseña incorrectos.');
@@ -58,23 +55,21 @@ export const Login: React.FC = () => {
         return;
       }
 
-      // 2. Buscamos el perfil real en la tabla `usuarios`
-      const { data: usuario, error: errorPerfil } = await supabase
-        .from('usuarios')
-        .select('perfil, estado, nombres')
-        .eq('id', data.user.id)
-        .single();
+    const { data: listaUsuarios, error: errorPerfil } = await supabase
+      .from('usuarios')
+      .select('perfil, estado, nombre')
+      .eq('id', data.user.id);
 
-      console.log('perfil ->', { usuario, errorPerfil }); // TEMPORAL: sacar cuando funcione
+    const usuario = listaUsuarios?.[0];
 
-      if (errorPerfil || !usuario) {
-        await supabase.auth.signOut();
-        setErrorLogin('No se encontró un perfil en la tabla usuarios para este usuario.');
-        setTipoModal('error');
-        setCargando(false);
-        return;
-      }
-
+    if (errorPerfil || !usuario) {
+      console.error('No se encontró el perfil vinculado al id:', data.user.id);
+      await supabase.auth.signOut();
+      setErrorLogin('No se encontró el perfil de usuario registrado.');
+      setTipoModal('error');
+      setCargando(false);
+      return;
+    }
       if (usuario.perfil === 'cliente_registrado' && usuario.estado !== 'aprobado') {
         await supabase.auth.signOut();
         setErrorLogin(
@@ -92,12 +87,13 @@ export const Login: React.FC = () => {
       setTimeout(() => {
         setMostrarModal(false);
         setCargando(false);
-        const esAdmin = usuario.perfil === 'dueño' || usuario.perfil === 'supervisor';
+
+        const esAdmin = usuario.perfil === 'dueno' || usuario.perfil === 'supervisor';
         router.push(esAdmin ? '/admin' : '/home', 'forward', 'replace');
       }, 1000);
 
     } catch (err) {
-      console.error('login catch ->', err); // TEMPORAL: sacar cuando funcione
+      console.error('login catch ->', err);
       setErrorLogin('Error al conectar con el servidor.');
       setTipoModal('error');
       setCargando(false);
@@ -116,8 +112,6 @@ export const Login: React.FC = () => {
           padding: '24px 16px',
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}>
-
-          {/* LOGO / CABECERA */}
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <span style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '2px', color: '#a1a1aa', textTransform: 'uppercase' }}>
               Restaurante
@@ -127,7 +121,6 @@ export const Login: React.FC = () => {
             </h1>
           </div>
 
-          {/* TARJETA DE LOGIN */}
           <div style={{
             width: '100%',
             maxWidth: '380px',
@@ -217,14 +210,12 @@ export const Login: React.FC = () => {
               </button>
             </form>
 
-            {/* SEPARADOR */}
             <div style={{ margin: '24px 0 16px 0', textAlign: 'center', borderBottom: '1px solid #f4f4f5', lineHeight: '0.1em' }}>
               <span style={{ backgroundColor: '#ffffff', padding: '0 8px', fontSize: '10px', color: '#a1a1aa', letterSpacing: '1px' }}>
                 INGRESO RÁPIDO
               </span>
             </div>
 
-            {/* BOTONES DE ACCESO RÁPIDO */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
               {roles.map((item) => (
                 <button
@@ -248,7 +239,6 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* FOOTER */}
           <footer style={{ marginTop: '32px', textAlign: 'center' }}>
             <span style={{ fontSize: '11px', color: '#a1a1aa', letterSpacing: '1px', textTransform: 'uppercase' }}>
               EQUIPO BRANCA
@@ -257,7 +247,6 @@ export const Login: React.FC = () => {
 
         </div>
 
-        {/* MODAL */}
         <IonModal isOpen={mostrarModal} backdropDismiss={false} style={{ '--height': 'auto', '--border-radius': '16px' } as React.CSSProperties}>
           <div style={{ padding: '32px 24px', textAlign: 'center', backgroundColor: '#ffffff' }}>
             {tipoModal === 'cargando' && (
@@ -293,4 +282,3 @@ export const Login: React.FC = () => {
     </IonPage>
   );
 };
-
