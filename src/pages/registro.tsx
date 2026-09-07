@@ -2,22 +2,19 @@ import React, { useState } from 'react';
 import { IonContent, IonPage, IonInput, useIonRouter } from '@ionic/react';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import './Registro.css';
-import { supabase } from '../services/supabaseCliente';
+import { supabase } from "../services/Supabasecliente";
 
 const Registro: React.FC = () => {
   const router = useIonRouter();
-
   const [nombre, setNombre] = useState<string>('');
   const [apellido, setApellido] = useState<string>('');
   const [dni, setDni] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [clave, setClave] = useState<string>('');
   const [foto, setFoto] = useState<string | null>(null);
-
   const [loading, setLoading] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const showError = (msg: string) => {
     setErrorMessage(msg);
   };
@@ -85,10 +82,8 @@ const Registro: React.FC = () => {
 
       if (insertError) throw insertError;
 
-      // 3. Mostrar modal de éxito
       setIsSuccess(true);
 
-      // 4. Redirigir al Home tras 3 segundos
       setTimeout(() => {
         setLoading(false);
         setIsSuccess(false);
@@ -224,8 +219,6 @@ const Registro: React.FC = () => {
           </div>
 
         </main>
-
-        {/* Modal Carga / Éxito */}
         {loading && (
           <div className="retro-modal-overlay">
             <div className="retro-modal-box">
@@ -245,8 +238,6 @@ const Registro: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* Modal Error */}
         {errorMessage && (
           <div className="retro-modal-overlay">
             <div className="retro-modal-box error-box">
