@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonContent, IonPage, IonInput, useIonRouter } from '@ionic/react';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { tomarFoto } from '../services/cameraService';
 import './Home.css';
 import { supabase } from "../services/Supabasecliente";
 
@@ -101,18 +101,17 @@ const Home: React.FC = () => {
     }
   };
 
-  // Captura de imagen desde la cámara
+  /**
+   * Captura de foto obligatoria para el cliente anónimo (invitado):
+   * Utiliza el servicio 'tomarFoto' con tipo 'user' (cámara frontal) y 'permitirGaleria: false',
+   * forzando la apertura directa de la cámara sin permitir selección de imágenes de la galería
+   * tal como lo exige el Punto 9 del TFI (tanto en web como en APK nativa).
+   */
   const takePhoto = async () => {
     try {
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.Base64,
-        source: CameraSource.Camera
-      });
-
-      if (image.base64String) {
-        setFotoAnon(`data:image/jpeg;base64,${image.base64String}`);
+      const fotoCapturada = await tomarFoto({ tipo: 'user', permitirGaleria: false });
+      if (fotoCapturada) {
+        setFotoAnon(fotoCapturada);
       }
     } catch (error) {
       console.log('Cámara cancelada o no disponible:', error);

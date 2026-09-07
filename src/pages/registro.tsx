@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonContent, IonPage, IonInput, useIonRouter } from '@ionic/react';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { tomarFoto } from '../services/cameraService';
 import './Registro.css';
 import { supabase } from "../services/Supabasecliente";
 
@@ -19,17 +19,17 @@ const Registro: React.FC = () => {
     setErrorMessage(msg);
   };
 
+  /**
+   * Captura de foto de perfil obligatoria para el registro de cliente:
+   * Llama al servicio 'tomarFoto' configurado con tipo 'user' (cámara frontal) y sin opción
+   * de galería (permitirGaleria: false), garantizando el cumplimiento de la consigna del TFI
+   * tanto en la app nativa instalada (Capacitor) como en el navegador web del celular (HTML5 capture).
+   */
   const takePhoto = async () => {
     try {
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.Base64,
-        source: CameraSource.Camera
-      });
-
-      if (image.base64String) {
-        setFoto(`data:image/jpeg;base64,${image.base64String}`);
+      const fotoCapturada = await tomarFoto({ tipo: 'user', permitirGaleria: false });
+      if (fotoCapturada) {
+        setFoto(fotoCapturada);
       }
     } catch (error) {
       console.log('Cámara cancelada o no disponible:', error);

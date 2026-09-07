@@ -23,6 +23,7 @@ export const Login: React.FC = () => {
   const roles = [
     { label: 'Dueño', email: 'dueno@restaurante.com' },
     { label: 'Supervisor', email: 'supervisor@restaurante.com' },
+    { label: 'Metre', email: 'metre@restaurante.com'},
     { label: 'Mozo', email: 'mozo@restaurante.com' },
     { label: 'Cocinero', email: 'cocinero@restaurante.com' },
     { label: 'Cantinero', email: 'cantinero@restaurante.com' },

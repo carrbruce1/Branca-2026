@@ -10,5 +10,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     legacy()
-  ]
+  ],
+  server: {
+    host: true
+  }
 });
