@@ -20,6 +20,7 @@ const Home: React.FC = () => {
     setErrorMessage(msg);
   };
 
+  // Inicio de sesión directo en BD (mail/clave), estado y redirección por perfil
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -47,6 +48,7 @@ const Home: React.FC = () => {
         return;
       }
 
+      // Validación de aprobación del cliente
       if (usuario.perfil === 'cliente_registrado') {
         if (usuario.estado === 'pendiente') {
           setLoadingLogin(false);
@@ -60,12 +62,14 @@ const Home: React.FC = () => {
         }
       }
 
+      // Guardado de la sesión en almacenamiento local
       localStorage.setItem('user_id', usuario.id);
       localStorage.setItem('user_perfil', usuario.perfil);
       localStorage.setItem('user_nombre', `${usuario.nombre} ${usuario.apellido || ''}`.trim());
 
       setIsSuccess(true);
 
+      // Redirección hacia la ruta que corresponde según el rol del usuario
       setTimeout(() => {
         setLoadingLogin(false);
         setIsSuccess(false);
@@ -97,6 +101,7 @@ const Home: React.FC = () => {
     }
   };
 
+  // Captura de imagen desde la cámara
   const takePhoto = async () => {
     try {
       const image = await Camera.getPhoto({
@@ -114,6 +119,7 @@ const Home: React.FC = () => {
     }
   };
 
+  // Registro e ingreso temporal para usuarios anónimos
   const handleAnonSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -147,7 +153,6 @@ const Home: React.FC = () => {
       localStorage.setItem('user_id', clienteAnon.id);
       localStorage.setItem('user_perfil', 'cliente_anonimo');
       localStorage.setItem('user_nombre', clienteAnon.nombre);
-
 
       setIsSuccess(true);
       setTimeout(() => {

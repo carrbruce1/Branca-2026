@@ -28,6 +28,7 @@ export const AdminPanel: React.FC = () => {
     color: 'success'
   });
 
+  // Verificación de sesión activa y carga del perfil administrador
   useEffect(() => {
     const cargarUsuario = async () => {
       const { data: sesion } = await supabase.auth.getSession();
@@ -58,6 +59,7 @@ export const AdminPanel: React.FC = () => {
     cargarUsuario();
   }, [router]);
 
+  // Consulta de clientes con estado 'pendiente' ordenados por fecha
   const traerPendientes = async () => {
     setCargandoPendientes(true);
 
@@ -75,38 +77,40 @@ export const AdminPanel: React.FC = () => {
     if (!cargandoSesion) traerPendientes();
   }, [cargandoSesion]);
 
+  // Modificación del estado del cliente ('aceptado' o 'rechazado') y auditoría
   const resolver = async (cliente: Usuario, aprobar: boolean) => {
-  setProcesando(cliente.id);
+    setProcesando(cliente.id);
 
-  const estadoNuevo = aprobar ? 'aceptado' : 'rechazado';
+    const estadoNuevo = aprobar ? 'aceptado' : 'rechazado';
 
-  const { error } = await supabase
-    .from('usuarios')
-    .update({
-      estado: estadoNuevo,
-      fecha_aprobacion: new Date().toISOString(),
-      aprobado_por: usuario?.id ?? null,
-    })
-    .eq('id', cliente.id);
+    const { error } = await supabase
+      .from('usuarios')
+      .update({
+        estado: estadoNuevo,
+        fecha_aprobacion: new Date().toISOString(),
+        aprobado_por: usuario?.id ?? null,
+      })
+      .eq('id', cliente.id);
 
-  setProcesando(null);
+    setProcesando(null);
 
-  if (error) {
-    console.error('Error al actualizar usuario:', error);
-    setToastInfo({
-      mostrar: true,
-      mensaje: `Ocurrió un error al intentar ${aprobar ? 'aceptar' : 'rechazar'} a ${cliente.nombre}.`,
-      color: 'danger'
-    });
-  } else {
-    setToastInfo({
-      mostrar: true,
-      mensaje: `El cliente ${cliente.nombre} fue ${aprobar ? 'aceptado' : 'rechazado'} correctamente.`,
-      color: aprobar ? 'success' : 'warning'
-    });
-    traerPendientes();
-  }
-};
+    if (error) {
+      console.error('Error al actualizar usuario:', error);
+      setToastInfo({
+        mostrar: true,
+        mensaje: `Ocurrió un error al intentar ${aprobar ? 'aceptar' : 'rechazar'} a ${cliente.nombre}.`,
+        color: 'danger'
+      });
+    } else {
+      setToastInfo({
+        mostrar: true,
+        mensaje: `El cliente ${cliente.nombre} fue ${aprobar ? 'aceptado' : 'rechazado'} correctamente.`,
+        color: aprobar ? 'success' : 'warning'
+      });
+      traerPendientes();
+    }
+  };
+
   const handleCerrarSesion = async () => {
     await supabase.auth.signOut();
     router.push('/login', 'forward', 'replace');

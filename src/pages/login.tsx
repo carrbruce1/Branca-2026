@@ -6,7 +6,7 @@ import {
   IonModal,
   useIonRouter
 } from '@ionic/react';
-import { supabase  } from "../services/Supabasecliente";
+import { supabase } from "../services/Supabasecliente";
 
 export const Login: React.FC = () => {
   const router = useIonRouter();
@@ -46,6 +46,7 @@ export const Login: React.FC = () => {
     setErrorLogin(null);
 
     try {
+      // Autenticación en Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error || !data.user) {
@@ -55,22 +56,25 @@ export const Login: React.FC = () => {
         return;
       }
 
-    const { data: listaUsuarios, error: errorPerfil } = await supabase
-      .from('usuarios')
-      .select('perfil, estado, nombre')
-      .eq('id', data.user.id);
+      // Consulta de perfil y rol en la tabla usuarios
+      const { data: listaUsuarios, error: errorPerfil } = await supabase
+        .from('usuarios')
+        .select('perfil, estado, nombre')
+        .eq('id', data.user.id);
 
-    const usuario = listaUsuarios?.[0];
+      const usuario = listaUsuarios?.[0];
 
-    if (errorPerfil || !usuario) {
-      console.error('No se encontró el perfil vinculado al id:', data.user.id);
-      await supabase.auth.signOut();
-      setErrorLogin('No se encontró el perfil de usuario registrado.');
-      setTipoModal('error');
-      setCargando(false);
-      return;
-    }
-      if (usuario.perfil === 'cliente_registrado' && usuario.estado !== 'aprobado') {
+      if (errorPerfil || !usuario) {
+        console.error('No se encontró el perfil vinculado al id:', data.user.id);
+        await supabase.auth.signOut();
+        setErrorLogin('No se encontró el perfil de usuario registrado.');
+        setTipoModal('error');
+        setCargando(false);
+        return;
+      }
+
+      // Control de aprobación si es cliente registrado
+      if (usuario.perfil === 'cliente_registrado' && usuario.estado !== 'aprobado' && usuario.estado !== 'aceptado') {
         await supabase.auth.signOut();
         setErrorLogin(
           usuario.estado === 'rechazado'
@@ -88,6 +92,7 @@ export const Login: React.FC = () => {
         setMostrarModal(false);
         setCargando(false);
 
+        // Redirección según el rol asignado
         const esAdmin = usuario.perfil === 'dueno' || usuario.perfil === 'supervisor';
         router.push(esAdmin ? '/admin' : '/home', 'forward', 'replace');
       }, 1000);
