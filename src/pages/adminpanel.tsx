@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { IonPage, IonContent, IonSpinner, IonToast, useIonRouter } from '@ionic/react';
+import { IonPage, IonContent, IonSpinner, IonToast, useIonRouter, IonAlert } from '@ionic/react';
 import { supabase } from "../services/Supabasecliente";
 
 interface Usuario {
   id: string;
   nombre: string;
+  email: string;
   dni: number;
   perfil: string;
   estado: string;
@@ -18,6 +19,9 @@ export const AdminPanel: React.FC = () => {
   const [pendientes, setPendientes] = useState<Usuario[]>([]);
   const [cargandoPendientes, setCargandoPendientes] = useState(true);
   const [procesando, setProcesando] = useState<string | null>(null);
+  const [clienteARechazar, setClienteARechazar] = useState<Usuario | null>(null);
+  const [mostrarAlertRechazo, setMostrarAlertRechazo] = useState(false);
+
   const [toastInfo, setToastInfo] = useState<{
     mostrar: boolean;
     mensaje: string;
@@ -28,7 +32,6 @@ export const AdminPanel: React.FC = () => {
     color: 'success'
   });
 
-  // Verificación de sesión activa y carga del perfil administrador
   useEffect(() => {
     const cargarUsuario = async () => {
       const { data: sesion } = await supabase.auth.getSession();
@@ -41,7 +44,7 @@ export const AdminPanel: React.FC = () => {
 
       const { data, error } = await supabase
         .from('usuarios')
-        .select('id, nombre, dni, perfil, estado, foto_url')
+        .select('id, nombre, email, dni, perfil, estado, foto_url')
         .eq('id', userId);
 
       const perfilAdmin = data?.[0];
@@ -59,13 +62,12 @@ export const AdminPanel: React.FC = () => {
     cargarUsuario();
   }, [router]);
 
-  // Consulta de clientes con estado 'pendiente' ordenados por fecha
   const traerPendientes = async () => {
     setCargandoPendientes(true);
 
     const { data, error } = await supabase
       .from('usuarios')
-      .select('id, nombre, dni, perfil, estado, foto_url')
+      .select('id, nombre, email, dni, perfil, estado, foto_url')
       .eq('estado', 'pendiente')
       .order('fecha_registro', { ascending: true });
 
@@ -77,8 +79,31 @@ export const AdminPanel: React.FC = () => {
     if (!cargandoSesion) traerPendientes();
   }, [cargandoSesion]);
 
-  // Modificación del estado del cliente ('aceptado' o 'rechazado') y auditoría
-  const resolver = async (cliente: Usuario, aprobar: boolean) => {
+  const enviarEmailNotificacion = async (
+    emailCliente: string,
+    nombreCliente: string,
+    aprobado: boolean,
+    motivoRechazo?: string
+  ) => {
+    try {
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          email: emailCliente,
+          nombre: nombreCliente,
+          estado: aprobado ? 'aprobado' : 'rechazado',
+          motivo: motivoRechazo || '',
+        },
+      });
+
+      if (error) {
+        console.error('Error al invocar Edge Function de email:', error);
+      }
+    } catch (err) {
+      console.error('Excepción al enviar mail:', err);
+    }
+  };
+
+  const resolver = async (cliente: Usuario, aprobar: boolean, motivoRechazo: string = '') => {
     setProcesando(cliente.id);
 
     const estadoNuevo = aprobar ? 'aceptado' : 'rechazado';
@@ -88,11 +113,9 @@ export const AdminPanel: React.FC = () => {
       .update({
         estado: estadoNuevo,
         fecha_aprobacion: new Date().toISOString(),
-        aprobado_por: usuario?.id ?? null,
+        aprobado_por: usuario?.id ?? null
       })
       .eq('id', cliente.id);
-
-    setProcesando(null);
 
     if (error) {
       console.error('Error al actualizar usuario:', error);
@@ -102,13 +125,17 @@ export const AdminPanel: React.FC = () => {
         color: 'danger'
       });
     } else {
+      await enviarEmailNotificacion(cliente.email, cliente.nombre, aprobar, motivoRechazo);
+
       setToastInfo({
         mostrar: true,
-        mensaje: `El cliente ${cliente.nombre} fue ${aprobar ? 'aceptado' : 'rechazado'} correctamente.`,
+        mensaje: `El cliente ${cliente.nombre} fue ${aprobar ? 'aceptado' : 'rechazado'} y notificado por correo.`,
         color: aprobar ? 'success' : 'warning'
       });
       traerPendientes();
     }
+
+    setProcesando(null);
   };
 
   const handleCerrarSesion = async () => {
@@ -249,7 +276,10 @@ export const AdminPanel: React.FC = () => {
                         </button>
                         <button
                           disabled={procesando === cliente.id}
-                          onClick={() => resolver(cliente, false)}
+                          onClick={() => {
+                            setClienteARechazar(cliente);
+                            setMostrarAlertRechazo(true);
+                          }}
                           style={{
                             backgroundColor: '#dc2626',
                             color: '#ffffff',
@@ -271,6 +301,37 @@ export const AdminPanel: React.FC = () => {
               )}
             </div>
           </main>
+
+          <IonAlert
+            isOpen={mostrarAlertRechazo}
+            onDidDismiss={() => {
+              setMostrarAlertRechazo(false);
+              setClienteARechazar(null);
+            }}
+            header="Rechazar Cliente"
+            subHeader={`Motivo del rechazo para ${clienteARechazar?.nombre}`}
+            inputs={[
+              {
+                name: 'motivo',
+                type: 'text',
+                placeholder: 'Ej: Foto de DNI no legible',
+              },
+            ]}
+            buttons={[
+              {
+                text: 'Cancelar',
+                role: 'cancel',
+              },
+              {
+                text: 'Rechazar y Notificar',
+                handler: (data) => {
+                  if (clienteARechazar) {
+                    resolver(clienteARechazar, false, data.motivo);
+                  }
+                },
+              },
+            ]}
+          />
 
           <IonToast
             isOpen={toastInfo.mostrar}
