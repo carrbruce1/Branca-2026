@@ -20,7 +20,7 @@ const Home: React.FC = () => {
     setErrorMessage(msg);
   };
 
-  // Inicio de sesión directo en BD (mail/clave), estado y redirección por perfil
+  // Inicio de sesion 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -33,43 +33,57 @@ const Home: React.FC = () => {
     setIsSuccess(false);
 
     try {
-      const { data: usuario, error } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('email', email)
-        .eq('clave', password)
-        .maybeSingle();
+      // Autenticación con Supabase 
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password: password,
+      });
 
-      if (error) throw error;
-
-      if (!usuario) {
+      if (authError || !authData.user) {
         setLoadingLogin(false);
         showError('Correo o contraseña incorrectos.');
         return;
       }
 
-      // Validación de aprobación del cliente
+      
+      const { data: usuariosEncontrados, error: perfilError } = await supabase
+        .from('usuarios')
+        .select('*')
+        .or(`id.eq.${authData.user.id},email.eq.${email.trim().toLowerCase()}`);
+
+      const usuario = usuariosEncontrados?.[0];
+
+      if (perfilError || !usuario) {
+        await supabase.auth.signOut();
+        setLoadingLogin(false);
+        showError('No se encontró el perfil de usuario registrado.');
+        return;
+      }
+
+      //  Validacion de aprobacion del cliente
       if (usuario.perfil === 'cliente_registrado') {
         if (usuario.estado === 'pendiente') {
+          await supabase.auth.signOut();
           setLoadingLogin(false);
           showError('Tu cuenta aún está pendiente de aprobación por el supervisor.');
           return;
         }
         if (usuario.estado === 'rechazado') {
+          await supabase.auth.signOut();
           setLoadingLogin(false);
           showError('Tu solicitud de registro fue rechazada.');
           return;
         }
       }
 
-      // Guardado de la sesión en almacenamiento local
-      localStorage.setItem('user_id', usuario.id);
+      // Guardado de la sesion en almacenamiento local
+      localStorage.setItem('user_id', authData.user.id);
       localStorage.setItem('user_perfil', usuario.perfil);
       localStorage.setItem('user_nombre', `${usuario.nombre} ${usuario.apellido || ''}`.trim());
 
       setIsSuccess(true);
 
-      // Redirección hacia la ruta que corresponde según el rol del usuario
+      
       setTimeout(() => {
         setLoadingLogin(false);
         setIsSuccess(false);
@@ -101,12 +115,7 @@ const Home: React.FC = () => {
     }
   };
 
-  /**
-   * Captura de foto obligatoria para el cliente anónimo (invitado):
-   * Utiliza el servicio 'tomarFoto' con tipo 'user' (cámara frontal) y 'permitirGaleria: false',
-   * forzando la apertura directa de la cámara sin permitir selección de imágenes de la galería
-   * tal como lo exige el Punto 9 del TFI (tanto en web como en APK nativa).
-   */
+  
   const takePhoto = async () => {
     try {
       const fotoCapturada = await tomarFoto({ tipo: 'user', permitirGaleria: false });
