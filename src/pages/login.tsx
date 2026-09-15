@@ -94,7 +94,8 @@ export const Login: React.FC = () => {
 
         // Redirección según el rol asignado
         const esAdmin = usuario.perfil === 'dueno' || usuario.perfil === 'supervisor';
-        router.push(esAdmin ? '/admin' : '/home', 'forward', 'replace');
+        const usaChat = usuario.perfil === 'mozo' || usuario.perfil === 'cliente_registrado';
+        router.push(esAdmin ? '/admin' : usaChat ? '/chat' : '/home', 'forward', 'replace');
       }, 1000);
 
     } catch (err) {

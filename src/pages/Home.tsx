@@ -295,6 +295,7 @@ const Home: React.FC = () => {
           </div>
 
           <div className="registro-container">
+            <a onClick={() => router.push('/chat')} className="retro-link" style={{ display: 'block', marginBottom: '10px' }}>Chat con tu mozo</a>
             <a onClick={() => router.push('/registro')} className="retro-link">
               ¿No tenés cuenta? Registrate acá
             </a>

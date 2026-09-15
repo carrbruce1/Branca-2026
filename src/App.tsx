@@ -5,6 +5,7 @@ import { Login } from './pages/login';
 import { AdminPanel } from './pages/adminpanel';
 import Registro from './pages/registro';
 import Home from './pages/Home';
+import Chat from './pages/Chat';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -25,6 +26,7 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
+        <Route path="/chat" element={<Chat />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/registro" element={<Registro/>}/>
