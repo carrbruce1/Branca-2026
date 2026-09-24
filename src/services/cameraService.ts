@@ -8,16 +8,14 @@ export interface OpcionesFoto {
   permitirGaleria?: boolean;
 }
 
-/**
- * Servicio unificado de cámara.
- * - En app nativa (APK): ejecuta CameraSource.Camera de Capacitor (abre directo el sensor sin menú de galería).
- * - En navegador web: usa un input HTML5 con el atributo 'capture' para obligar al navegador móvil a abrir la cámara directa.
- */
 export const tomarFoto = async (opciones: OpcionesFoto = {}): Promise<string | null> => {
   const { tipo = 'user', permitirGaleria = false } = opciones;
 
-  // 1. DISPOSITIVO NATIVO (App Android / iOS instalada)
-  if (Capacitor.isNativePlatform()) {
+  // Detección de dispositivo móvil (celular o tablet)
+  const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  // PC
+  if (Capacitor.isNativePlatform() || !esMovil) {
     try {
       const imagen = await Camera.getPhoto({
         quality: 75,
@@ -31,21 +29,24 @@ export const tomarFoto = async (opciones: OpcionesFoto = {}): Promise<string | n
       }
       return null;
     } catch (error: any) {
-      if (error?.message?.includes('cancelled') || error?.message?.includes('canceled')) {
+      if (
+        error?.message?.includes('cancelled') ||
+        error?.message?.includes('canceled') ||
+        error?.message?.includes('User cancelled')
+      ) {
         return null;
       }
-      console.warn('Error al capturar foto en dispositivo nativo:', error);
+      console.warn('Error al capturar foto en nativo/PC:', error);
       return null;
     }
   }
 
-  // 2. NAVEGADOR WEB (Chrome, Safari, etc. en celular o PC)
+  // Web Browser en celular
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
 
-    // Al definir 'capture', el navegador móvil omite el selector de galería y abre la cámara directo
     if (!permitirGaleria) {
       input.capture = tipo;
     }
@@ -69,7 +70,7 @@ export const tomarFoto = async (opciones: OpcionesFoto = {}): Promise<string | n
       reader.readAsDataURL(file);
     };
 
-    // Control si el usuario cancela la captura o vuelve atrás
+    // Control si el usuario cancela o cierra la cámara
     window.addEventListener(
       'focus',
       () => {
