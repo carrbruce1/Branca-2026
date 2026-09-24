@@ -19,12 +19,6 @@ const Registro: React.FC = () => {
     setErrorMessage(msg);
   };
 
-  /**
-   * Captura de foto de perfil obligatoria para el registro de cliente:
-   * Llama al servicio 'tomarFoto' configurado con tipo 'user' (cámara frontal) y sin opción
-   * de galería (permitirGaleria: false), garantizando el cumplimiento de la consigna del TFI
-   * tanto en la app nativa instalada (Capacitor) como en el navegador web del celular (HTML5 capture).
-   */
   const takePhoto = async () => {
     try {
       const fotoCapturada = await tomarFoto({ tipo: 'user', permitirGaleria: false });
@@ -53,15 +47,22 @@ const Registro: React.FC = () => {
     setIsSuccess(false);
 
     try {
-      const { data: usuarioExistente } = await supabase
-        .from('usuarios')
-        .select('id')
-        .eq('email', email)
-        .maybeSingle();
+      // Registro
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password: clave,
+      });
 
-      if (usuarioExistente) {
+      if (authError) {
         setLoading(false);
-        showError('El correo electrónico ya se encuentra registrado.');
+        showError(authError.message || 'Error al crear la cuenta en Supabase Auth.');
+        return;
+      }
+
+      const userId = authData.user?.id;
+      if (!userId) {
+        setLoading(false);
+        showError('No se pudo obtener el identificador del usuario registrado.');
         return;
       }
 
@@ -69,11 +70,11 @@ const Registro: React.FC = () => {
         .from('usuarios')
         .insert([
           {
+            id: userId,
             nombre: nombre.trim(),
             apellido: apellido.trim(),
             dni: dni.trim(),
             email: email.trim().toLowerCase(),
-            clave: clave,
             foto_url: foto,
             perfil: 'cliente_registrado',
             estado: 'pendiente'
