@@ -49,7 +49,7 @@ export const AdminPanel: React.FC = () => {
 
       const perfilAdmin = data?.[0];
 
-      if (error || !perfilAdmin) {
+      if (error || !perfilAdmin || !['dueno', 'supervisor'].includes(perfilAdmin.perfil)) {
         console.error('No se pudo cargar el perfil del admin ->', error);
         router.push('/login', 'forward', 'replace');
         return;
@@ -195,6 +195,7 @@ export const AdminPanel: React.FC = () => {
           </header>
 
           <main style={{ padding: '20px 16px', maxWidth: '520px', margin: '0 auto' }}>
+            <button type="button" onClick={() => router.push('/admin/empleados/nuevo')} style={{ padding: '14px 20px', marginBottom: '20px', background: '#f8c555', color: '#48200d', borderRadius: '10px', fontWeight: 700 }}>Agregar empleado</button>
             <div style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e4e4e7',

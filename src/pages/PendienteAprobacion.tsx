@@ -16,7 +16,7 @@ import {
   IonAvatar
 } from '@ionic/react';
 import { checkmarkCircleOutline, closeCircleOutline } from 'ionicons/icons';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../services/Supabasecliente';
 
 interface ClientePendiente {
   id: string;

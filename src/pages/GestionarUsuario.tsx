@@ -14,7 +14,7 @@ import {
   IonSelect,
   IonSelectOption
 } from '@ionic/react';
-import { supabase } from '../supabaseClient'; 
+import { supabase } from '../services/Supabasecliente';
 
 interface Usuario {
   id: string;

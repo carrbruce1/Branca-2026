@@ -24,6 +24,8 @@
     "@ionic/react": "^9.0.0",
     "@ionic/react-router": "^9.0.0",
     "@supabase/supabase-js": "^2.115.0",
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
     "ionicons": "^8.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
