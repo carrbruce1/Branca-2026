@@ -196,6 +196,7 @@ export const AdminPanel: React.FC = () => {
 
           <main style={{ padding: '20px 16px', maxWidth: '520px', margin: '0 auto' }}>
             <button type="button" onClick={() => router.push('/admin/empleados/nuevo')} style={{ padding: '14px 20px', marginBottom: '20px', background: '#f8c555', color: '#48200d', borderRadius: '10px', fontWeight: 700 }}>Agregar empleado</button>
+            <button type="button" onClick={() => router.push('/admin/mesas')} style={{ padding: '14px 20px', marginBottom: '20px', marginLeft: '12px', background: '#f8c555', color: '#48200d', borderRadius: '10px', fontWeight: 700 }}>Gestionar mesas</button>
             <div style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e4e4e7',

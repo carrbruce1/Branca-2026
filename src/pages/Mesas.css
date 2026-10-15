@@ -1,0 +1,215 @@
+.mesas-content {
+  --background: #a84429;
+  color: #fff8de;
+}
+
+.mesas-container {
+  max-width: 900px;
+  margin: auto;
+  padding: max(24px, env(safe-area-inset-top)) 20px 36px;
+  font-family: system-ui, sans-serif;
+}
+
+.mesas-header {
+  text-align: center;
+}
+
+.mesas-header img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+}
+
+.mesas-container button,
+.mesas-qr a {
+  display: inline-block;
+  background: #f8c555;
+  color: #48200d;
+  border: 2px solid #542516;
+  border-radius: 10px;
+  padding: 14px 18px;
+  min-height: 48px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.mesas-container button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+.mesas-container fieldset,
+.mesas-tarjeta {
+  border: 2px solid #f8c555;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 20px;
+  background: #7f3427;
+  min-width: 0;
+}
+
+.mesas-container legend {
+  font-weight: 700;
+  padding: 0 8px;
+}
+
+.mesas-container label {
+  display: block;
+  margin: 16px 0;
+  font-weight: 600;
+}
+
+.mesas-container input,
+.mesas-container select {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 7px;
+  padding: 13px;
+  border: 2px solid #e5ad50;
+  border-radius: 8px;
+  background: #ffe1a0;
+  color: #49200e;
+  font-size: 1rem;
+}
+
+.mesas-container input[aria-invalid=true] {
+  border: 3px solid #ff9c8b;
+}
+
+.mesas-container :focus-visible {
+  outline: 3px solid #ffdc6d;
+  outline-offset: 3px;
+}
+
+.mesas-error {
+  display: block;
+  color: #ffe0ab;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.mesas-foto {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  border: 2px dashed #e5ad50;
+  border-radius: 10px;
+  margin: 18px 0;
+}
+
+.mesas-foto img,
+.mesas-imagen {
+  width: 100%;
+  height: 240px;
+  object-fit: contain;
+}
+
+.mesas-guardar {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.mesas-mensaje {
+  padding: 16px;
+  margin-top: 16px;
+  border: 2px solid #ffd87b;
+  border-radius: 10px;
+  background: #793321;
+}
+
+.mesas-mensaje.exito {
+  background: #326337;
+}
+
+.mesas-listado-header,
+.mesas-acciones {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.mesas-listado {
+  margin-top: 32px;
+}
+
+.mesas-grilla,
+.mesas-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 20px;
+}
+
+.mesas-estado {
+  border: 1px solid #f8c555;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.mesas-estado.vacia {
+  background: #326337;
+}
+
+.mesas-estado.ocupada {
+  background: #873017;
+}
+
+.mesas-espera,
+.mesas-qr {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #7f3427f5;
+  padding: 20px;
+}
+
+.mesas-espera img {
+  width: 95px;
+  animation: mesas-pulso 1s ease-in-out infinite alternate;
+}
+
+.mesas-qr {
+  overflow-y: auto;
+}
+
+.mesas-qr > div {
+  width: 100%;
+  max-width: 400px;
+  max-height: 100%;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.mesas-qr img {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 16px auto;
+}
+
+.mesas-qr button,
+.mesas-qr a {
+  margin: 6px;
+}
+
+@keyframes mesas-pulso {
+  to {
+    opacity: .5;
+    transform: scale(.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mesas-espera img {
+    animation: none;
+  }
+}
