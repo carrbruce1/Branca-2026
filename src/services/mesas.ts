@@ -10,6 +10,7 @@ export interface Mesa {
   tipo: TipoMesa;
   disponibilidad: 'vacia' | 'ocupada';
   foto_url: string;
+  qr_codigo: string | null;
 }
 export interface DatosMesa {
   numero: string;
@@ -43,8 +44,8 @@ export function contenidoQrMesa(id: string): string {
   return JSON.stringify({ tipo: 'mesa', version: 1, id });
 }
 
-export function imagenQrMesa(id: string): string {
-  const matriz = new QRCodeWriter().encode(contenidoQrMesa(id), BarcodeFormat.QR_CODE, 0, 0, new Map([[EncodeHintType.MARGIN, 4]]));
+export function imagenQrMesa(id: string, codigo?: string | null): string {
+  const matriz = new QRCodeWriter().encode(codigo || contenidoQrMesa(id), BarcodeFormat.QR_CODE, 0, 0, new Map([[EncodeHintType.MARGIN, 4]]));
   const lado = matriz.getWidth();
   const cuadros: string[] = [];
   for (let y = 0; y < lado; y++) {
@@ -65,7 +66,7 @@ export function errorMesas(error: { code?: string }): string {
 }
 
 export async function listarMesas(): Promise<Mesa[]> {
-  const { data, error } = await supabase.from('mesas').select('id, numero, cantidad_comensales, tipo, disponibilidad, foto_url').order('numero');
+  const { data, error } = await supabase.from('mesas').select('id, numero, cantidad_comensales, tipo, disponibilidad, foto_url, qr_codigo').order('numero');
   if (error) throw new Error(errorMesas(error));
   return data as Mesa[];
 }
@@ -73,13 +74,16 @@ export async function listarMesas(): Promise<Mesa[]> {
 export async function crearMesa(datos: DatosMesa): Promise<Mesa> {
   const errores = validarMesa(datos);
   if (Object.keys(errores).length) throw new Error(Object.values(errores).join(' '));
+  const id = crypto.randomUUID();
   const { data, error } = await supabase.from('mesas').insert({
+    id,
+    qr_codigo: contenidoQrMesa(id),
     numero: Number(datos.numero),
     cantidad_comensales: Number(datos.cantidad_comensales),
     tipo: datos.tipo,
     disponibilidad: 'vacia',
     foto_url: datos.foto_url,
-  }).select('id, numero, cantidad_comensales, tipo, disponibilidad, foto_url').single();
+  }).select('id, numero, cantidad_comensales, tipo, disponibilidad, foto_url, qr_codigo').single();
   if (error) throw new Error(errorMesas(error));
   return data as Mesa;
 }
@@ -88,7 +92,7 @@ export async function cambiarDisponibilidad(mesa: Mesa): Promise<Mesa> {
   const { data, error } = await supabase.from('mesas')
     .update({ disponibilidad: mesa.disponibilidad === 'vacia' ? 'ocupada' : 'vacia' })
     .eq('id', mesa.id).eq('disponibilidad', mesa.disponibilidad)
-    .select('id, numero, cantidad_comensales, tipo, disponibilidad, foto_url').maybeSingle();
+    .select('id, numero, cantidad_comensales, tipo, disponibilidad, foto_url, qr_codigo').maybeSingle();
   if (error) throw new Error(errorMesas(error));
   if (!data) throw new Error('La mesa cambió o ya no está disponible. Actualizá el listado antes de intentar nuevamente.');
   return data as Mesa;

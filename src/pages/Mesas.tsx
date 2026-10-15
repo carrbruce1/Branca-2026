@@ -201,9 +201,9 @@ export default function Mesas() {
           {mesaQr && <section className="mesas-qr" role="dialog" aria-modal="true" aria-labelledby="titulo-qr">
             <div>
               <h2 id="titulo-qr">QR de la mesa {mesaQr.numero}</h2>
-              <img src={imagenQrMesa(mesaQr.id)} alt={`Código QR de la mesa ${mesaQr.numero}`} />
+              <img src={imagenQrMesa(mesaQr.id, mesaQr.qr_codigo)} alt={`Código QR de la mesa ${mesaQr.numero}`} />
               <p>Este código identifica exclusivamente esta mesa.</p>
-              <a href={imagenQrMesa(mesaQr.id)} download={`mesa-${mesaQr.numero}-qr.svg`}>Descargar QR</a>
+              <a href={imagenQrMesa(mesaQr.id, mesaQr.qr_codigo)} download={`mesa-${mesaQr.numero}-qr.svg`}>Descargar QR</a>
               <button type="button" autoFocus onClick={() => setMesaQr(null)}>Cerrar</button>
             </div>
           </section>}
